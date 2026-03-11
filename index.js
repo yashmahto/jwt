@@ -1,6 +1,9 @@
 import express from "express";
+import connectDB from "./db/connect.js";
 
 const app = express();
+connectDB();
+
 
 app.get("/", (req, res) => {
   res.send("JWT Authentication ");
