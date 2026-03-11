@@ -1,23 +1,26 @@
-
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import bcrypt from "bcrypt"
+import User from "../model/User.js";
+import bcrypt from "bcrypt";
 
 const login = async (req , res) => {
     try {
         const {email , password} = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: "Email and password are required" });
+        }
+
         const user = await User.findOne({email})
         if(!user) {
-            res.status(404).json({success: false , error: "User not found"})
+            return res.status(404).json({success: false , error: "User not found"})
         }
 
         const isMatch = await bcrypt.compare(password,user.password)
         if(!isMatch){
-            res.status(404).json({success : false , error : "Wrong Password" })
+            return res.status(401).json({success : false , error : "Wrong Password" })
         }
 
-        const token = jwt.sign({_id: user._id , role : user.role},
-            process.env.JWT_KEY ,
+        const token = jwt.sign({ userId: user._id, role: user.role },
+            process.env.JWT_SECRET ,
             {expiresIn : "10d"}
         )
 
